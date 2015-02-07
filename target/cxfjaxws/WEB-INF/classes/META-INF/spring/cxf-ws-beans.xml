@@ -1,0 +1,49 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:cxf="http://camel.apache.org/schema/cxf"
+	xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/cxf http://camel.apache.org/schema/cxf/camel-cxf.xsd
+       http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd
+       http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+       http://cxf.apache.org/transports/camel http://cxf.apache.org/transports/camel.xsd
+       http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
+    ">
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+
+	<bean id="loggingOutInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor">
+		<!-- it really should have been user-prestream but CXF does have such phase! 
+		<constructor-arg value="target/write" />-->
+	</bean>
+
+	<bean id="loggingInInterceptor" class="org.apache.cxf.interceptor.LoggingInInterceptor">
+		<!-- it really should have been user-prestream but CXF does have such phase! 
+		<constructor-arg value="target/write" />-->
+	</bean>
+
+	<cxf:cxfEndpoint id="serviceEndpoint"
+		address="/service/AccountWS"
+		serviceClass="com.prash.camel.sample.jaxws.PersonAccountWS">
+		<cxf:outInterceptors>
+			<ref bean="loggingOutInterceptor" />
+		</cxf:outInterceptors>
+		<cxf:inInterceptors>
+			<ref bean="loggingInInterceptor" />
+		</cxf:inInterceptors>
+	</cxf:cxfEndpoint>
+		
+	<camelContext xmlns="http://camel.apache.org/schema/spring">
+		<routeBuilder ref="myRoutes" />
+	</camelContext>
+
+
+	<!-- Defined the server endpoint to create the cxf-rs consumer
+	<cxf:rsServer id="rsServer" address="/rest"
+		serviceClass="com.prash.camel.cxf.rest.CustomerService"
+		loggingFeatureEnabled="true" loggingSizeLimit="20" skipFaultLogging="false" />
+		 -->
+	<bean id="myRoutes" class="com.prash.camel.route.CamelRouteBuilder" />
+
+</beans>
